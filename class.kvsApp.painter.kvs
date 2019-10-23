@@ -1,0 +1,110 @@
+/* This is a small example to demonstrate how Mouse Tracking can be done in KVS.
+
+  This code can be copy and pasted into the Script Tester and press Execute button to run the program.
+  
+  The program will build a window that has a 'canvas' area at the bottom. When the mouse cursor is rolled 
+  over the lower area of the program window, 2 labels are updated to show the cursor's X,Y position 
+  relative to the canvas area.
+  
+  Simple breakdown of the code: 
+    1. Class (kvsApp) is defined
+    2. kvsApp Constructor is defined
+    3. GUI widgets are declared, layout declared
+    4. privateimpl Event handlers declared
+    5. Object connections
+    6. Create a kvsApp object and show it on screen.
+
+*/
+
+clear
+
+class (kvsApp, widget)
+{
+	function constructor()
+	{
+# main window/class settings, values, etc.
+
+		@%ary_appGeom[] = $array(100,100,500,500)
+		@$setGeometry(@%ary_appGeom)
+
+# child widgets
+
+		@%lblX = $new(label, $$, "kvsApp label Mouse X")
+		@%lblX->$setText("X: ")
+
+		@%lblY = $new(label, $$, "kvsApp label Mouse Y")
+		@%lblY->$setText("Y: ")
+
+		@%canvasArea = $new(widget, $$, "kvsApp Canvas Area")
+		@%canvasArea->$setBackgroundColor("FF0000")
+		@%canvasArea->$setMouseTracking($true)
+
+		@%tbBtnLine = $new(button, $$, "kvsApp | Toolbar | Button | Line")
+		@%tbBtnLine->$setText(╱)
+		@%tbBtnLine->$setMaximumWidth(30)
+		@%tbBtnLine->$setTooltip("Straight Line")
+		@%tbBtnLine->$setProperty(checkable,$true)
+
+# layout
+
+		@%l0 = $new(layout, $$, "kvsApp Main layout")
+		@%l0->$addMultiCellWidget(@%lblX, 0,0,0,1)
+		@%l0->$addMultiCellWidget(@%lblY, 1,1,0,1)
+		@%l0->$addMultiCellWidget(@%tbBtnLine, 2,2,0,0)
+		@%l0->$addMultiCellWidget(@%canvasArea, 3,3,0,1)
+
+# private implementations
+
+		privateimpl (@%canvasArea, paintEvent)
+		{
+			%b=$new(painter)
+			%b->$setBackgroundMode(Opaque)
+			%b->$setBrush(0,250,250)
+			%b->$begin($$)
+			%b->$drawRect(0,0,$(@$width - 1),$(@$height - 1))
+		}
+
+		privateimpl(@%canvasArea, mouseMoveEvent)
+		{
+			# note that arguments $0 and $1 hold the mouse X,Y positions relative to the tracked widget below the mouse
+			# $globalCursorX and $globalCursorY return the mouse X,Y position relative to the entire screen.
+			$$->$parent->%lblX->$setText("X: $0")
+			$$->$parent->%lblY->$setText("Y: $1")
+		}
+
+		privateimpl(@%canvasArea, mousePressEvent)
+		{
+			debug -c 0: $0 | 1: $1 | 2: $2
+		}
+
+
+# object connections
+
+		objects.connect @%tbBtnLine clicked $$ toolbarButtonClickHandler
+	}
+
+	function toolbarButtonClickHandler()
+	{
+		debug -c signal sender name: $$->$signalSender->$name
+		debug -c 0: $0 | 1: $1 | 2: $2
+		%callerName = $str.rightfromlast($$->$signalSender->$name," | ")
+		debug callerName = %callerName
+		switch(%callerName)
+		{
+			case(Line):
+			{
+				debug -c [switch/case/Line]: user clicked the straight line button;
+				debug -c [switch/case/Line]: isChecked = $$->$signalSender->$property(checked)
+				break;
+			}
+			default:
+			{
+				debug -c [switch/case/default]: we don't recognize the object that sent the signal;
+			}
+		}
+	}
+}
+
+
+%kvsApp = $new(kvsApp, 0, 'kvsApp Main')
+%kvsApp->$show()
