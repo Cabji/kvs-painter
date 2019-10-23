@@ -1,10 +1,6 @@
-/* This is a small example to demonstrate how Mouse Tracking can be done in KVS.
+/* This is a personal project where I am trying to create a simple graphic drawing app in KVS.
 
   This code can be copy and pasted into the Script Tester and press Execute button to run the program.
-  
-  The program will build a window that has a 'canvas' area at the bottom. When the mouse cursor is rolled 
-  over the lower area of the program window, 2 labels are updated to show the cursor's X,Y position 
-  relative to the canvas area.
   
   Simple breakdown of the code: 
     1. Class (kvsApp) is defined
@@ -12,7 +8,8 @@
     3. GUI widgets are declared, layout declared
     4. privateimpl Event handlers declared
     5. Object connections
-    6. Create a kvsApp object and show it on screen.
+    6. Class functions declared
+    7. Create a kvsApp object and show it on screen.
 
 */
 
@@ -40,18 +37,39 @@ class (kvsApp, widget)
 		@%canvasArea->$setMouseTracking($true)
 
 		@%tbBtnLine = $new(button, $$, "kvsApp | Toolbar | Button | Line")
-		@%tbBtnLine->$setText(╱)
+		@%tbBtnLine->$setText("╱")
 		@%tbBtnLine->$setMaximumWidth(30)
 		@%tbBtnLine->$setTooltip("Straight Line")
 		@%tbBtnLine->$setProperty(checkable,$true)
 
+		@%tbBtnRect = $new(button, $$, "kvsApp | Toolbar | Button | Rect")
+		@%tbBtnRect->$setText("▯")
+		@%tbBtnRect->$setMaximumWidth(30)
+		@%tbBtnRect->$setTooltip("Rectangle")
+		@%tbBtnRect->$setProperty(checkable,$true)
+
+		@%tbBtnSquare = $new(button, $$, "kvsApp | Toolbar | Button | Square")
+		@%tbBtnSquare->$setText("⬜")
+		@%tbBtnSquare->$setMaximumWidth(30)
+		@%tbBtnSquare->$setTooltip("Square")
+		@%tbBtnSquare->$setProperty(checkable,$true)
+
+		@%tbBtnCircle = $new(button, $$, "kvsApp | Toolbar | Button | Circle")
+		@%tbBtnCircle->$setText("⚪")
+		@%tbBtnCircle->$setMaximumWidth(30)
+		@%tbBtnCircle->$setTooltip("Square")
+		@%tbBtnCircle->$setProperty(checkable,$true)
+
 # layout
 
 		@%l0 = $new(layout, $$, "kvsApp Main layout")
-		@%l0->$addMultiCellWidget(@%lblX, 0,0,0,1)
-		@%l0->$addMultiCellWidget(@%lblY, 1,1,0,1)
+		@%l0->$addMultiCellWidget(@%lblX, 0,0,0,4)
+		@%l0->$addMultiCellWidget(@%lblY, 1,1,0,4)
 		@%l0->$addMultiCellWidget(@%tbBtnLine, 2,2,0,0)
-		@%l0->$addMultiCellWidget(@%canvasArea, 3,3,0,1)
+		@%l0->$addMultiCellWidget(@%tbBtnRect, 2,2,1,1)
+		@%l0->$addMultiCellWidget(@%tbBtnSquare, 2,2,2,2)
+		@%l0->$addMultiCellWidget(@%tbBtnCircle, 2,2,3,3)
+		@%l0->$addMultiCellWidget(@%canvasArea, 3,3,0,4)
 
 # private implementations
 
@@ -68,8 +86,8 @@ class (kvsApp, widget)
 		{
 			# note that arguments $0 and $1 hold the mouse X,Y positions relative to the tracked widget below the mouse
 			# $globalCursorX and $globalCursorY return the mouse X,Y position relative to the entire screen.
-			$$->$parent->%lblX->$setText("X: $0")
-			$$->$parent->%lblY->$setText("Y: $1")
+			@$parent->%lblX->$setText("X: $0")
+			@$parent->%lblY->$setText("Y: $1")
 		}
 
 		privateimpl(@%canvasArea, mousePressEvent)
@@ -80,26 +98,55 @@ class (kvsApp, widget)
 
 # object connections
 
-		objects.connect @%tbBtnLine clicked $$ toolbarButtonClickHandler
+		objects.connect @%tbBtnCircle	clicked $$ toolbarButtonClickHandler
+		objects.connect @%tbBtnLine	clicked $$ toolbarButtonClickHandler
+		objects.connect @%tbBtnRect	clicked $$ toolbarButtonClickHandler
+		objects.connect @%tbBtnSquare	clicked $$ toolbarButtonClickHandler
 	}
 
 	function toolbarButtonClickHandler()
 	{
-		debug -c signal sender name: $$->$signalSender->$name
-		debug -c 0: $0 | 1: $1 | 2: $2
-		%callerName = $str.rightfromlast($$->$signalSender->$name," | ")
+		%callerName = $str.rightfromlast(@$signalSender->$name," | ")
 		debug callerName = %callerName
 		switch(%callerName)
 		{
+			case(Circle):
+			{
+				debug -c [switch/case/Circle]: user clicked the straight line button;
+				break;
+			}
 			case(Line):
 			{
 				debug -c [switch/case/Line]: user clicked the straight line button;
-				debug -c [switch/case/Line]: isChecked = $$->$signalSender->$property(checked)
+				break;
+			}
+			case(Rect):
+			{
+				debug -c [switch/case/Rect]: user clicked the rectangle button;
+				break;
+			}
+			case(Square):
+			{
+				debug -c [switch/case/Square]: user clicked the square button;
 				break;
 			}
 			default:
 			{
 				debug -c [switch/case/default]: we don't recognize the object that sent the signal;
+			}
+		}
+
+		// uncheck other toolbar buttons as only one button can be checked at a time
+		foreach (%child, @$children)
+		{
+			if ($str.contains(%child->$name, "Toolbar | Button"))
+			{
+				%childName = $str.rightfromlast(%child->$name," | ")
+				if (%childName != %callerName)
+				{
+					debug -c childName = %childName
+					%child->$setProperty(checked,$false)
+				}
 			}
 		}
 	}
