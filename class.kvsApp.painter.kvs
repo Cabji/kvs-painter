@@ -63,12 +63,12 @@ class (kvsApp, widget)
 # layout
 
 		@%l0 = $new(layout, $$, "kvsApp Main layout")
-		@%l0->$addMultiCellWidget(@%lblX, 0,0,0,4)
-		@%l0->$addMultiCellWidget(@%lblY, 1,1,0,4)
-		@%l0->$addMultiCellWidget(@%tbBtnLine, 2,2,0,0)
-		@%l0->$addMultiCellWidget(@%tbBtnRect, 2,2,1,1)
-		@%l0->$addMultiCellWidget(@%tbBtnSquare, 2,2,2,2)
-		@%l0->$addMultiCellWidget(@%tbBtnCircle, 2,2,3,3)
+		@%l0->$addMultiCellWidget(@%lblX,		0,0,0,4)
+		@%l0->$addMultiCellWidget(@%lblY,		1,1,0,4)
+		@%l0->$addMultiCellWidget(@%tbBtnLine,	2,2,0,0)
+		@%l0->$addMultiCellWidget(@%tbBtnRect,	2,2,1,1)
+		@%l0->$addMultiCellWidget(@%tbBtnSquare,2,2,2,2)
+		@%l0->$addMultiCellWidget(@%tbBtnCircle,2,2,3,3)
 		@%l0->$addMultiCellWidget(@%canvasArea, 3,3,0,4)
 
 # private implementations
